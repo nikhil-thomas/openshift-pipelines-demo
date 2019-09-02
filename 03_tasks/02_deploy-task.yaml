@@ -1,0 +1,41 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: generic-deploy-task
+spec:
+  inputs:
+    resources:
+      - name: source-repo
+        type: git
+
+      - name: new-image
+        type: image
+
+    params:
+      - name: yamlFile
+        description: The yaml file to update
+
+      - name: yamlImagePath
+        description: A tree path for "image" attribute in yaml file
+
+      - name: yamls
+        description: The yaml(s) to apply
+
+  steps:
+    - name: replace-image
+      image: mikefarah/yq
+      command: ["yq"]
+      args:
+        - "w"
+        - "-i"
+        - "/workspace/source-repo/${inputs.params.yamlFile}"
+        - "${inputs.params.yamlImagePath}"
+        - "${inputs.resources.new-image.url}"
+
+    - name: deploy-resources
+      image: lachlanevenson/k8s-kubectl
+      command: ["kubectl"]
+      args:
+        - apply
+        - -f
+        - /workspace/source-repo/${inputs.params.yamls}

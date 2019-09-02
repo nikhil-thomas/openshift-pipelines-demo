@@ -1,0 +1,9 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: voting-api-image
+spec:
+  type: image
+  params:
+    - name: url
+      value: docker.io/nikhilvep/voting-api

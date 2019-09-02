@@ -1,0 +1,75 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: generic-cicd-pipeline
+spec:
+  resources:
+    - name: pipeline-source-repo
+      type: git
+
+    - name: pipeline-built-image
+      type: image
+
+    - name: pipeline-source-repo-cicd
+      type: git
+
+  params:
+    - name: p-pathToDockerFile
+      description: path to docker file
+
+    - name: p-pathToContext
+      description: path to context
+
+    - name: p-yamlFile
+      description: The yaml file to update
+
+    - name: p-yamlImagePath
+      description: A tree path for "image" attribute in yaml file
+
+    - name: p-yamls
+      description: The yaml(s) to apply
+
+  tasks:
+    - name: pipeline-build-task
+      taskRef:
+        name: generic-build-task
+
+      resources:
+        inputs:
+          - name: source-repo
+            resource: pipeline-source-repo
+
+        outputs:
+          - name: destImage
+            resource: pipeline-built-image
+
+      params:
+        - name: pathToDockerFile
+          value: ${params.p-pathToDockerFile}
+
+        - name: pathToContext
+          value: ${params.p-pathToContext}
+
+    - name: pipeline-deploy-task
+      taskRef:
+        name: generic-deploy-task
+
+      resources:
+        inputs:
+          - name: source-repo
+            resource: pipeline-source-repo-cicd
+
+          - name: new-image
+            resource: pipeline-built-image
+            from:
+              - pipeline-build-task
+
+      params:
+        - name: yamlFile
+          value: ${params.p-yamlFile}
+
+        - name: yamlImagePath
+          value: ${params.p-yamlImagePath}
+
+        - name: yamls
+          value: ${params.p-yamls}

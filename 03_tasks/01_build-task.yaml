@@ -1,0 +1,33 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name:  generic-build-task
+spec:
+  inputs:
+    resources:
+      - name: source-repo
+        type: git
+
+    params:
+      - name: pathToContext
+        description: The build context used by Kaniko
+        default: .
+
+      - name: pathToDockerFile
+        description: The path to the dockerfile to build
+        default: Dockerfile
+
+  outputs:
+    resources:
+      - name: destImage
+        type: image
+
+  steps:
+    - name: build-and-push
+      image: gcr.io/kaniko-project/executor
+      command:
+        - /kaniko/executor
+      args:
+        - --context=/workspace/source-repo/${inputs.params.pathToContext}
+        - --dockerfile=/workspace/source-repo/${inputs.params.pathToDockerFile}
+        - --destination=${outputs.resources.destImage.url}
