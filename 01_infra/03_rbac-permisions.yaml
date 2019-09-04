@@ -17,7 +17,7 @@ metadata:
   name: api-role-binding
 subjects:
   - kind: ServiceAccount
-    name: docker-auth-sa
+    name: pipeline-sa
 roleRef:
   kind: Role
   name: api-role

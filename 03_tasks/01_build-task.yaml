@@ -31,3 +31,11 @@ spec:
         - --context=/workspace/source-repo/${inputs.params.pathToContext}
         - --dockerfile=/workspace/source-repo/${inputs.params.pathToDockerFile}
         - --destination=${outputs.resources.destImage.url}
+      volumeMounts:
+        - name: varlibcontainers
+          mountPath: /var/lib/containers
+      securityContext:
+        privileged: true
+  volumes:
+    - name: varlibcontainers
+      emptyDir: {}

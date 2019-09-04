@@ -3,7 +3,7 @@ kind: PipelineRun
 metadata:
   name: voting-api-pipelinerun
 spec:
-  serviceAccount: docker-auth-sa
+  serviceAccount: pipeline-sa
   pipelineRef:
     name: generic-cicd-pipeline
   resources:
